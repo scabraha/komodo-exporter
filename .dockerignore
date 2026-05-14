@@ -1,0 +1,14 @@
+node_modules
+dist
+coverage
+.vitest-cache
+.git
+.github
+.env
+.env.*
+*.log
+tests
+README.md
+LICENSE
+.gitignore
+.dockerignore
