@@ -236,10 +236,8 @@ export class Poller {
         .labels({ ...labels, state: stringifyContainerState(container.state) })
         .set(1);
 
-      // `created` is a millisecond Unix timestamp. Convert to seconds for
-      // Prometheus; gives us PromQL: time() - <metric> for uptime.
       if (container.created !== undefined) {
-        this.metrics.containerCreated.labels(labels).set(container.created / 1000);
+        this.metrics.containerCreated.labels(labels).set(container.created);
       }
     }
   }
