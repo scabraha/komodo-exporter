@@ -58,6 +58,8 @@ export class Poller {
   private readonly stops = new Set<() => void>();
   private fastConsecutiveFailures = 0;
   private fastHasSucceeded = false;
+  /** server_id → server_name, refreshed every fast-tier poll. */
+  private serverNames = new Map<string, string>();
 
   constructor(
     private readonly client: ApiClient,
@@ -83,6 +85,7 @@ export class Poller {
       { name: "alerts", fn: () => this.pollAlerts() },
     ]);
     const slowStop = this.spawn("slow", this.config.slowPollInterval, [
+      { name: "server_names", fn: () => this.refreshServerNames() },
       { name: "stacks", fn: () => this.pollStacks() },
       { name: "deployments", fn: () => this.pollDeployments() },
       { name: "builds", fn: () => this.pollBuilds() },
@@ -205,6 +208,13 @@ export class Poller {
       this.client.read("ListServers", { query: undefined }),
     ]);
 
+    // Rebuild the server_id → server_name lookup used by other poll steps.
+    const names = new Map<string, string>();
+    for (const server of servers) {
+      names.set(server.id, server.name);
+    }
+    this.serverNames = names;
+
     this.metrics.serversTotal.set(summary.total);
     this.metrics.serversByState.reset();
     this.metrics.serversByState.labels({ state: "healthy" }).set(summary.healthy);
@@ -220,6 +230,10 @@ export class Poller {
     }
   }
 
+  private resolveServerName(serverId: string): string {
+    return this.serverNames.get(serverId) ?? "";
+  }
+
   private async pollContainers(): Promise<void> {
     const containers = await this.client.read("ListAllDockerContainers", {});
 
@@ -227,8 +241,10 @@ export class Poller {
     this.metrics.containerCreated.reset();
 
     for (const container of containers) {
+      const serverId = container.server_id ?? "";
       const labels = {
-        server_id: container.server_id ?? "",
+        server_id: serverId,
+        server_name: this.resolveServerName(serverId),
         container: container.name,
         image: container.image ?? "",
       };
@@ -276,6 +292,15 @@ export class Poller {
 
   // ---- slow tier -----------------------------------------------------------
 
+  private async refreshServerNames(): Promise<void> {
+    const servers = await this.client.read("ListServers", { query: undefined });
+    const names = new Map<string, string>();
+    for (const server of servers) {
+      names.set(server.id, server.name);
+    }
+    this.serverNames = names;
+  }
+
   private async pollStacks(): Promise<void> {
     const [summary, stacks] = await Promise.all([
       this.client.read("GetStacksSummary", {}),
@@ -296,6 +321,7 @@ export class Poller {
         .labels({
           name: stack.name,
           server_id: stack.info.server_id,
+          server_name: this.resolveServerName(stack.info.server_id),
           state: stack.info.state,
         })
         .set(1);
@@ -324,6 +350,7 @@ export class Poller {
       const labels = {
         name: deployment.name,
         server_id: deployment.info.server_id,
+        server_name: this.resolveServerName(deployment.info.server_id),
         image: deployment.info.image,
       };
       this.metrics.deploymentState
