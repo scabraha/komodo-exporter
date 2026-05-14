@@ -40,15 +40,15 @@ export class Metrics {
 
   readonly stacksTotal: Gauge;
   readonly stacksByState: Gauge<"state">;
-  readonly stackState: Gauge<"name" | "server_id" | "state">;
+  readonly stackState: Gauge<"name" | "server_id" | "server_name" | "state">;
 
   readonly deploymentsTotal: Gauge;
   readonly deploymentsByState: Gauge<"state">;
   readonly deploymentState: Gauge<
-    "name" | "server_id" | "image" | "state"
+    "name" | "server_id" | "server_name" | "image" | "state"
   >;
   readonly deploymentUpdateAvailable: Gauge<
-    "name" | "server_id" | "image"
+    "name" | "server_id" | "server_name" | "image"
   >;
 
   readonly buildsTotal: Gauge;
@@ -69,9 +69,9 @@ export class Metrics {
 
   // ---- container metrics (per-container) ----
   readonly containerState: Gauge<
-    "server_id" | "container" | "image" | "state"
+    "server_id" | "server_name" | "container" | "image" | "state"
   >;
-  readonly containerCreated: Gauge<"server_id" | "container" | "image">;
+  readonly containerCreated: Gauge<"server_id" | "server_name" | "container" | "image">;
 
   // ---- meta ----
   readonly coreVersion: Gauge<"version" | "title">;
@@ -117,7 +117,7 @@ export class Metrics {
     this.stackState = gauge({
       name: "komodo_stack_state",
       help: "Per-stack state. Value 1 means the stack is currently in this state.",
-      labelNames: ["name", "server_id", "state"] as const,
+      labelNames: ["name", "server_id", "server_name", "state"] as const,
     });
 
     this.deploymentsTotal = gauge({
@@ -132,12 +132,12 @@ export class Metrics {
     this.deploymentState = gauge({
       name: "komodo_deployment_state",
       help: "Per-deployment state. Value 1 means the deployment is currently in this state.",
-      labelNames: ["name", "server_id", "image", "state"] as const,
+      labelNames: ["name", "server_id", "server_name", "image", "state"] as const,
     });
     this.deploymentUpdateAvailable = gauge({
       name: "komodo_deployment_update_available",
       help: "1 if a newer image is available at the same tag for this deployment",
-      labelNames: ["name", "server_id", "image"] as const,
+      labelNames: ["name", "server_id", "server_name", "image"] as const,
     });
 
     this.buildsTotal = gauge({
@@ -199,14 +199,14 @@ export class Metrics {
     this.containerState = gauge({
       name: "komodo_container_state",
       help: "Per-container state on each Komodo server. Value 1 means the container is currently in this state.",
-      labelNames: ["server_id", "container", "image", "state"] as const,
+      labelNames: ["server_id", "server_name", "container", "image", "state"] as const,
     });
     this.containerCreated = gauge({
       name: "komodo_container_created_timestamp_seconds",
       help:
         "Unix timestamp (seconds) when each container was created. " +
         "PromQL: time() - komodo_container_created_timestamp_seconds for uptime.",
-      labelNames: ["server_id", "container", "image"] as const,
+      labelNames: ["server_id", "server_name", "container", "image"] as const,
     });
 
     this.coreVersion = gauge({

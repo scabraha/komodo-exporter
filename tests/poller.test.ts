@@ -29,7 +29,7 @@ const silentLog = {
 
 interface FakeReadResponses {
   GetServersSummary: { total: number; healthy: number; unhealthy: number; disabled: number; warning: number };
-  ListServers: { name: string; info: { state: Types.ServerState; region: string } }[];
+  ListServers: { id: string; name: string; info: { state: Types.ServerState; region: string } }[];
   ListAllDockerContainers: {
     server_id?: string;
     name: string;
@@ -56,8 +56,8 @@ describe("Poller fast tier", () => {
     const client = fakeClient({
       GetServersSummary: { total: 3, healthy: 2, unhealthy: 1, disabled: 0, warning: 0 },
       ListServers: [
-        { name: "edge", info: { state: Types.ServerState.Ok, region: "us-east" } },
-        { name: "lab", info: { state: Types.ServerState.NotOk, region: "" } },
+        { id: "srv1", name: "edge", info: { state: Types.ServerState.Ok, region: "us-east" } },
+        { id: "srv2", name: "lab", info: { state: Types.ServerState.NotOk, region: "" } },
       ],
       ListAllDockerContainers: [
         {
@@ -97,10 +97,10 @@ describe("Poller fast tier", () => {
     expect(text).toContain('komodo_server_state{name="edge",region="us-east"} 1');
     expect(text).toContain('komodo_server_state{name="lab",region=""} -1');
     expect(text).toContain(
-      'komodo_container_state{server_id="srv1",container="nginx",image="nginx:1.25",state="running"} 1',
+      'komodo_container_state{server_id="srv1",server_name="edge",container="nginx",image="nginx:1.25",state="running"} 1',
     );
     expect(text).toMatch(
-      /komodo_container_created_timestamp_seconds\{server_id="srv1",container="nginx",image="nginx:1.25"\} 1700000000/,
+      /komodo_container_created_timestamp_seconds\{server_id="srv1",server_name="edge",container="nginx",image="nginx:1.25"\} 1700000000/,
     );
     expect(text).toContain(
       'komodo_open_alerts{level="CRITICAL",type="ServerCpu"} 2',
