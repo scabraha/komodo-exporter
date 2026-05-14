@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.0](https://github.com/scabraha/komodo-exporter/compare/v0.2.1...v0.3.0) (2026-05-14)
+
+
+### Features
+
+* add server_name label to all metrics with server_id ([b6e88bf](https://github.com/scabraha/komodo-exporter/commit/b6e88bf250a7e2cd00993445d63788d75fecfb17))
+* add server_name label to all metrics with server_id ([2555d9f](https://github.com/scabraha/komodo-exporter/commit/2555d9f121ab37bd496317aba56a6b77383230b6))
+
 ## [0.2.1](https://github.com/scabraha/komodo-exporter/compare/v0.2.0...v0.2.1) (2026-05-14)
 
 
