@@ -29,31 +29,31 @@ describe("loadConfig", () => {
     ["KOMODO_API_SECRET", "KOMODO_API_SECRET is required"],
   ])("throws when %s is missing", (key, message) => {
     const env = { ...baseEnv, [key]: "" };
-    expect(() => loadConfig(env)).toThrowError(new ConfigError(message));
+    expect(() => loadConfig(env)).toThrow(new ConfigError(message));
   });
 
   it("rejects non-integer poll intervals", () => {
     expect(() =>
       loadConfig({ ...baseEnv, FAST_POLL_INTERVAL: "abc" }),
-    ).toThrowError(/FAST_POLL_INTERVAL must be an integer/);
+    ).toThrow(/FAST_POLL_INTERVAL must be an integer/);
   });
 
   it("rejects out-of-range port", () => {
-    expect(() => loadConfig({ ...baseEnv, EXPORTER_PORT: "0" })).toThrowError(
+    expect(() => loadConfig({ ...baseEnv, EXPORTER_PORT: "0" })).toThrow(
       /EXPORTER_PORT must be >= 1/,
     );
     expect(() =>
       loadConfig({ ...baseEnv, EXPORTER_PORT: "70000" }),
-    ).toThrowError(/EXPORTER_PORT must be <= 65535/);
+    ).toThrow(/EXPORTER_PORT must be <= 65535/);
   });
 
   it("rejects unknown log format / level", () => {
     expect(() =>
       loadConfig({ ...baseEnv, LOG_FORMAT: "yaml" }),
-    ).toThrowError(/LOG_FORMAT must be 'text' or 'json'/);
+    ).toThrow(/LOG_FORMAT must be 'text' or 'json'/);
     expect(() =>
       loadConfig({ ...baseEnv, LOG_LEVEL: "trace" }),
-    ).toThrowError(/LOG_LEVEL must be one of/);
+    ).toThrow(/LOG_LEVEL must be one of/);
   });
 
   it("normalizes 'warning' to 'warn'", () => {
