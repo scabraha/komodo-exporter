@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/scabraha/komodo-exporter/compare/v0.3.0...v0.3.1) (2026-07-02)
+
+
+### Miscellaneous
+
+* release 0.3.1 ([ddb6706](https://github.com/scabraha/komodo-exporter/commit/ddb67061e4ad26648dd83430217b0374a24fc899))
+
 ## [0.3.0](https://github.com/scabraha/komodo-exporter/compare/v0.2.1...v0.3.0) (2026-05-14)
 
 
