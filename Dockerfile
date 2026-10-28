@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.28
 
-FROM node:24-alpine AS builder
+FROM node:26-alpine AS builder
 WORKDIR /build
 COPY package.json package-lock.json* ./
 RUN npm ci --no-audit --no-fund
@@ -8,7 +8,7 @@ COPY tsconfig.json ./
 COPY src ./src
 RUN npm run build && npm prune --omit=dev
 
-FROM node:24-alpine
+FROM node:26-alpine
 ENV NODE_ENV=production
 RUN addgroup -S exporter && adduser -S -G exporter exporter
 WORKDIR /app
